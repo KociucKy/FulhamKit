@@ -300,32 +300,32 @@ Button("Save") {
 
 **`FKToast.Style`:** `.info` · `.success` · `.warning` · `.error`
 
-### `CarouselView`
+### `FKCarouselView`
 
 A paging horizontal carousel with built-in pagination dots.
 
 ```swift
-CarouselView(items: fixtures, height: 200) { fixture in
+FKCarouselView(items: fixtures, height: 200) { fixture in
     FixtureCard(fixture: fixture)
 }
 ```
 
-### `TagCellView`
+### `FKTagCellView`
 
 An icon-badge + label tag cell (e.g. for position tags, category chips).
 
 ```swift
-TagCellView(name: "Forward", icon: "figure.soccer", hexColor: "#EF7B98")
+FKTagCellView(name: "Forward", icon: "figure.soccer", hexColor: "#EF7B98")
 ```
 
-### `SectionHeaderView`
+### `FKSectionHeaderView`
 
 A section header with an optional tappable action.
 
 ```swift
-SectionHeaderView(title: "Recent matches")
+FKSectionHeaderView(title: "Recent matches")
 
-SectionHeaderView(title: "All fixtures") {
+FKSectionHeaderView(title: "All fixtures") {
     navigate(to: .fixtures)
 }
 // Shows a chevron and becomes a button when action is provided
