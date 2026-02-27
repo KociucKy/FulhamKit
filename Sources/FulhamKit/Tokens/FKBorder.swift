@@ -53,7 +53,7 @@ public extension View {
     ///
     /// // Custom width and color:
     /// inputField
-    ///     .fkBorder(cornerRadius: FKRadius.small, lineWidth: FKBorder.medium, color: FKColor.statusError)
+    ///     .fkBorder(cornerRadius: FKRadius.small, lineWidth: FKBorder.medium, color: FKColor.Status.error)
     /// ```
     func fkBorder(
         cornerRadius: CGFloat,
