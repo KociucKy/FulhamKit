@@ -14,7 +14,7 @@ public struct FKPressableButtonStyle: ButtonStyle {
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.smooth, value: configuration.isPressed)
+            .animation(FKAnimation.interactive, value: configuration.isPressed)
     }
 }
 
@@ -35,7 +35,7 @@ public struct FKHighlightButtonStyle: ButtonStyle {
             .overlay {
                 Color.accentColor.opacity(configuration.isPressed ? 0.4 : 0)
             }
-            .animation(.smooth, value: configuration.isPressed)
+            .animation(FKAnimation.interactive, value: configuration.isPressed)
     }
 }
 
@@ -54,7 +54,7 @@ public struct FKFadeButtonStyle: ButtonStyle {
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.5 : 1)
-            .animation(.smooth, value: configuration.isPressed)
+            .animation(FKAnimation.interactive, value: configuration.isPressed)
     }
 }
 
