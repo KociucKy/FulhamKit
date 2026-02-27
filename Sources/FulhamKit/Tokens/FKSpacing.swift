@@ -6,8 +6,8 @@ import SwiftUI
 /// rather than hardcoding numeric literals.
 ///
 /// ```swift
-/// .padding(FKSpacing.lg)
-/// VStack(spacing: FKSpacing.sm) { ... }
+/// .padding(FKSpacing.large)
+/// VStack(spacing: FKSpacing.small) { ... }
 /// ```
 public enum FKSpacing {
     /// 4pt — tight gaps between closely related elements (e.g. icon + label)

@@ -19,8 +19,8 @@ import SwiftUI
 ///         .callToActionButton()
 /// }
 /// ```
-struct CTAButtonModifier: ViewModifier {
-    func body(content: Content) -> some View {
+public struct CTAButtonModifier: ViewModifier {
+    public func body(content: Content) -> some View {
         content
             .font(FKTypography.ctaLabel)
             .foregroundStyle(.white)
