@@ -1,0 +1,53 @@
+name: FulhamKit Design System Lint
+
+# This is a reusable workflow. Call it from a consumer app repo like this:
+#
+#   jobs:
+#     design-system-lint:
+#       uses: your-org/FulhamKit/.github/workflows/design-system-lint.yml@main
+#       with:
+#         base-ref: ${{ github.base_ref }}
+#
+# The calling workflow must have `pull_request` as one of its triggers so that
+# github.base_ref is populated.
+
+on:
+  workflow_call:
+    inputs:
+      base-ref:
+        description: "Base branch ref to diff against (e.g. main)"
+        required: true
+        type: string
+
+jobs:
+  lint:
+    name: Design System Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout consumer repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout FulhamKit scripts
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/FulhamKit
+          ref: main
+          path: .fulhamkit
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Collect changed Swift files
+        id: changed
+        run: |
+          git diff --name-only origin/${{ inputs.base-ref }}...HEAD \
+            | grep '\.swift$' > changed_files.txt || true
+          echo "Found $(wc -l < changed_files.txt | tr -d ' ') changed Swift file(s)."
+          cat changed_files.txt
+
+      - name: Run design system lint
+        run: |
+          chmod +x .fulhamkit/.github/scripts/check_design_system.sh
+          bash .fulhamkit/.github/scripts/check_design_system.sh changed_files.txt
