@@ -331,6 +331,41 @@ SectionHeaderView(title: "All fixtures") {
 // Shows a chevron and becomes a button when action is provided
 ```
 
+### `FKWhatsNewView`
+
+A "What's New" sheet that presents a list of new features with staggered entrance animations. Each feature has a coloured icon tile, title, and description. The header icon scales in with a spring bounce, then each row slides up in sequence.
+
+```swift
+.sheet(isPresented: $showWhatsNew) {
+    FKWhatsNewView(
+        version: "Version 2.0",
+        items: [
+            FKWhatsNewItem(
+                icon: "trophy.fill",
+                color: .orange,
+                title: "League Tables",
+                description: "Live standings updated after every match."
+            ),
+            FKWhatsNewItem(
+                icon: "bell.badge.fill",
+                color: .indigo,
+                title: "Match Alerts",
+                description: "Get notified the moment the final whistle blows."
+            ),
+            FKWhatsNewItem(
+                icon: "chart.bar.fill",
+                color: .teal,
+                title: "Player Stats",
+                description: "Deep dive into performance data for every player."
+            )
+        ],
+        onContinue: { showWhatsNew = false }
+    )
+}
+```
+
+The `headline` and `headerIcon` parameters are optional — they default to `"What's New"` and `"sparkles"` respectively. The view supports swipe-to-dismiss natively as a sheet.
+
 ---
 
 ## Modifiers & Extensions
