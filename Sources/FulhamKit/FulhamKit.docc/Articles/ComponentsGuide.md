@@ -175,3 +175,39 @@ SectionHeaderView(title: "Recent Routines") {
 ### Topics
 
 - ``SectionHeaderView``
+
+---
+
+## FKWhatsNewView
+
+A "What's New" sheet for presenting new features after an app update. The header icon springs in, the title fades up, and each feature row slides in sequentially — all driven by a structured async sequence that cancels automatically if the sheet is dismissed early.
+
+```swift
+.sheet(isPresented: $showWhatsNew) {
+    FKWhatsNewView(
+        version: "Version 2.0",
+        items: [
+            FKWhatsNewItem(
+                icon: "trophy.fill",
+                color: .orange,
+                title: "League Tables",
+                description: "Live standings updated in real time after every match."
+            ),
+            FKWhatsNewItem(
+                icon: "bell.badge.fill",
+                color: .indigo,
+                title: "Match Alerts",
+                description: "Get notified the moment the final whistle blows."
+            )
+        ],
+        onContinue: { showWhatsNew = false }
+    )
+}
+```
+
+The `headline` and `headerIcon` parameters are optional and default to `"What's New"` and `"sparkles"`. Each ``FKWhatsNewItem`` takes a caller-specified `Color` for its icon tile, so the palette can match your app's branding per feature.
+
+### Topics
+
+- ``FKWhatsNewView``
+- ``FKWhatsNewItem``

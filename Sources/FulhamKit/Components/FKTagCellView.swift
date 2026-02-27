@@ -9,7 +9,7 @@ import SwiftUI
 /// TagCellView(name: "Weekly", icon: "calendar", hexColor: "#5174F8")
 /// TagCellView(name: "Morning", icon: "sunrise.fill", hexColor: "#EF7B98")
 /// ```
-public struct TagCellView: View {
+public struct FKTagCellView: View {
     let name: String
     let icon: String
     let hexColor: String
@@ -52,9 +52,9 @@ public struct TagCellView: View {
 
 #Preview {
     HStack(spacing: FKSpacing.extraLarge) {
-        TagCellView(name: "Weekly", icon: "calendar", hexColor: "#5174F8")
-        TagCellView(name: "Morning", icon: "sunrise.fill", hexColor: "#EF7B98")
-        TagCellView(name: "Invalid", icon: "questionmark", hexColor: "not-a-hex")
+        FKTagCellView(name: "Weekly", icon: "calendar", hexColor: "#5174F8")
+        FKTagCellView(name: "Morning", icon: "sunrise.fill", hexColor: "#EF7B98")
+        FKTagCellView(name: "Invalid", icon: "questionmark", hexColor: "not-a-hex")
     }
     .padding()
 }

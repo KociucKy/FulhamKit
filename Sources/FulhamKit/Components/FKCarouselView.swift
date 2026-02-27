@@ -14,7 +14,7 @@ import SwiftUI
 ///
 /// - Note: `Item` must conform to `Hashable`. Each item's hash value is
 ///   used as a stable scroll identity.
-public struct CarouselView<Item: Hashable & Sendable, Content: View>: View {
+public struct FKCarouselView<Item: Hashable & Sendable, Content: View>: View {
     var items: [Item]
     var height: CGFloat
     @ViewBuilder var content: (Item) -> Content

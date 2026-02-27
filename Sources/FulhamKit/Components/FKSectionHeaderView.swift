@@ -14,7 +14,7 @@ import SwiftUI
 ///     navigateToRoutines()
 /// }
 /// ```
-public struct SectionHeaderView: View {
+public struct FKSectionHeaderView: View {
     var title: String
     var action: (() -> Void)?
 
@@ -55,8 +55,8 @@ public struct SectionHeaderView: View {
 
 #Preview {
     VStack(spacing: FKSpacing.large) {
-        SectionHeaderView(title: "Tags")
-        SectionHeaderView(title: "Routines") { }
+        FKSectionHeaderView(title: "Tags")
+        FKSectionHeaderView(title: "Routines") { }
     }
     .padding()
 }
