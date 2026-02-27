@@ -3,7 +3,7 @@ import SwiftUI
 /// Shadow / elevation tokens for FulhamKit.
 ///
 /// Each token bundles the color, radius, and offset needed for a consistent
-/// shadow at a given elevation level. Apply them via the ``View/fkShadow(_:)``
+/// shadow at a given elevation level. Apply them via the `fkShadow(_:)`
 /// modifier rather than using `.shadow()` directly.
 ///
 /// ```swift
