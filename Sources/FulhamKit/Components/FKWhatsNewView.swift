@@ -139,6 +139,7 @@ public struct FKWhatsNewView: View {
                 Text(headline)
                     .font(FKTypography.statValue)
                     .foregroundStyle(FKColor.Label.primary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(version)
                     .font(FKTypography.secondaryLabel)
@@ -273,6 +274,9 @@ private struct FeatureRow: View {
             textStack
             Spacer(minLength: 0)
         }
+        // Present the entire row as a single VoiceOver element.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(item.title). \(item.description)")
     }
 
     @ViewBuilder

@@ -39,6 +39,7 @@ public struct FKSectionHeaderView: View {
                 Image(systemName: "chevron.right")
                     .foregroundStyle(.secondary)
                     .font(FKTypography.sectionHeaderEmphasis)
+                    .accessibilityHidden(true)
             }
 
             Spacer()
@@ -47,8 +48,10 @@ public struct FKSectionHeaderView: View {
         if let action {
             Button(action: action) { label }
                 .buttonStyle(.fkFade)
+                .accessibilityHint("Show all")
         } else {
             label
+                .accessibilityAddTraits(.isHeader)
         }
     }
 }

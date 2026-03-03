@@ -61,6 +61,7 @@ struct ToastView: View {
             Image(systemName: toast.style.icon)
                 .foregroundStyle(toast.style.color)
                 .font(FKTypography.ctaLabel)
+                .accessibilityHidden(true)
 
             Text(toast.message)
                 .font(FKTypography.secondaryLabel)
@@ -73,6 +74,9 @@ struct ToastView: View {
         .background(.regularMaterial)
         .clipShape(.capsule)
         .fkShadow(.medium)
+        // Combine into a single VoiceOver element with just the message text.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(toast.message)
     }
 }
 
@@ -96,14 +100,16 @@ struct ToastModifier: ViewModifier {
                         )
                 }
             }
-            .onChange(of: toast) { _, newToast in
+            .onChange(of: toast) {
                 dismissTask?.cancel()
-                guard let newToast else {
+                guard let newToast = toast else {
                     withAnimation(FKAnimation.dismiss) { isVisible = false }
                     return
                 }
 
                 withAnimation(FKAnimation.spring) { isVisible = true }
+                // Announce the toast message for VoiceOver users.
+                AccessibilityNotification.Announcement(newToast.message).post()
                 dismissTask = Task {
                     try? await Task.sleep(for: .seconds(newToast.duration))
                     guard !Task.isCancelled else { return }
