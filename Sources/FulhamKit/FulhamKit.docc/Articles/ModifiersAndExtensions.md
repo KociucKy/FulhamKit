@@ -159,3 +159,130 @@ Color(hex: "EF7B98CC")    // pink at ~80% opacity
 ```
 
 Returns `nil` for invalid strings.
+
+---
+
+## onFirstAppear(perform:) / onFirstTask(perform:)
+
+Fires a closure (or async task) exactly once — on the first appearance only. Subsequent appearances after navigating away and back are ignored.
+
+```swift
+// Synchronous — runs on first onAppear
+MyView()
+    .onFirstAppear {
+        viewModel.loadInitialData()
+    }
+
+// Async — runs as a SwiftUI task on first appearance; cancelled on disappear
+MyView()
+    .onFirstTask {
+        await viewModel.fetchRemoteData()
+    }
+```
+
+### Topics
+
+- ``FirstAppearModifier``
+- ``FirstTaskModifier``
+
+---
+
+## applyIf(_:transform:)
+
+Conditionally applies a view transform without `if`/`AnyView` wrapping at the call site. When the condition is `false`, the view is returned unchanged.
+
+```swift
+Text("Pro")
+    .font(FKTypography.caption)
+    .applyIf(user.isPro) { label in
+        label.bold().foregroundStyle(FKColor.Interactive.tinted)
+    }
+
+MyCard()
+    .applyIf(isSelected) { card in
+        card.fkBorder(cornerRadius: FKRadius.medium, lineWidth: FKBorder.medium)
+    }
+```
+
+---
+
+## tappableBackground()
+
+Makes the entire frame of a view hittable, including empty space between subviews. Required when `.onTapGesture` on a `VStack` or `HStack` fails to fire in the gaps.
+
+```swift
+VStack(spacing: FKSpacing.medium) {
+    Image(systemName: "figure.soccer")
+    Text("Kick-off")
+}
+.tappableBackground()
+.onTapGesture { selectItem() }
+```
+
+---
+
+## imageScrimBackground(scrimOpacity:)
+
+Overlays a vertical gradient (transparent → black at the given opacity) to improve text legibility over image backgrounds. The opacity defaults to `0.4` and can be customised per call site.
+
+```swift
+Image("match-hero")
+    .overlay(alignment: .bottom) {
+        VStack {
+            Text("Fulham vs Arsenal").font(FKTypography.cardTitle)
+            Text("Saturday, 15:00").font(FKTypography.caption)
+        }
+        .padding(FKSpacing.large)
+        .imageScrimBackground()          // default 0.4 opacity
+        // .imageScrimBackground(scrimOpacity: 0.6)  // darker scrim
+    }
+```
+
+---
+
+## badgeStyle(backgroundColor:)
+
+Wraps content in a compact, pill-shaped badge capsule. Uses `FKSpacing.default` horizontal padding and `FKSpacing.extraSmall` vertical padding, then clips to a `Capsule`.
+
+```swift
+Text("Live")
+    .font(FKTypography.footnoteEmphasis)
+    .foregroundStyle(.white)
+    .badgeStyle(backgroundColor: FKColor.Status.error)
+
+Text("New")
+    .font(FKTypography.caption)
+    .badgeStyle(backgroundColor: FKColor.Interactive.tinted.opacity(0.15))
+```
+
+---
+
+## onNotificationReceived(_:action:)
+
+Subscribes to a `NotificationCenter` notification for the lifetime of the view. The subscription is established on appear and cancelled when the view is removed.
+
+```swift
+MyView()
+    .onNotificationReceived(.NSManagedObjectContextDidSave) { _ in
+        viewModel.refresh()
+    }
+```
+
+### Topics
+
+- ``NotificationListenerModifier``
+
+---
+
+## Binding(ifNotNil:)
+
+Creates a `Binding<Bool>` driven by a `Binding<T?>`. Reads `true` when the optional is non-nil; writing `false` sets the optional back to `nil`. Useful for sheet and alert presentation driven by optional state.
+
+```swift
+@State private var selectedPlayer: Player?
+
+.sheet(isPresented: Binding(ifNotNil: $selectedPlayer)) {
+    if let player = selectedPlayer {
+        PlayerDetailView(player: player)
+    }
+}
