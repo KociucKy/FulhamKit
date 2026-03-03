@@ -56,6 +56,10 @@ public struct FKToast: Equatable {
 struct ToastView: View {
     let toast: FKToast
 
+    // Maximum width keeps the toast pill-shaped in landscape where the
+    // available width is much wider than in portrait.
+    private let maxWidth: CGFloat = 420
+
     var body: some View {
         HStack(spacing: FKSpacing.default) {
             Image(systemName: toast.style.icon)
@@ -74,6 +78,7 @@ struct ToastView: View {
         .background(.regularMaterial)
         .clipShape(.capsule)
         .fkShadow(.medium)
+        .frame(maxWidth: maxWidth)
         // Combine into a single VoiceOver element with just the message text.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(toast.message)
@@ -90,10 +95,14 @@ struct ToastModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .overlay(alignment: .top) {
+            // safeAreaInset places the toast above the content's top safe area,
+            // ensuring it always clears the Dynamic Island / notch in all orientations.
+            .safeAreaInset(edge: .top, spacing: 0) {
                 if let toast, isVisible {
                     ToastView(toast: toast)
-                        .padding(.top, FKSpacing.large)
+                        .padding(.top, FKSpacing.small)
+                        .padding(.horizontal, FKSpacing.large)
+                        .frame(maxWidth: .infinity)
                         .transition(
                             .move(edge: .top)
                             .combined(with: .opacity)

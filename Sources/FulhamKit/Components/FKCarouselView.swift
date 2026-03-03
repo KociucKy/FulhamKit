@@ -15,6 +15,21 @@ import SwiftUI
 ///
 /// - Note: `Item` must conform to `Identifiable & Hashable`. The `id` is
 ///   used as a stable scroll identity.
+///
+/// ## Orientation
+///
+/// The `height` parameter is fixed and has no built-in orientation awareness.
+/// In landscape on iPhone the viewport is significantly shorter (~370 pt), so
+/// a large `height` value will consume most of the available vertical space.
+/// Consider passing a smaller value when the vertical size class is compact:
+///
+/// ```swift
+/// @Environment(\.verticalSizeClass) private var verticalSizeClass
+///
+/// FKCarouselView(items: items, height: verticalSizeClass == .compact ? 120 : 220) { item in
+///     ItemView(item: item)
+/// }
+/// ```
 public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: View>: View {
     var items: [Item]
     var height: CGFloat

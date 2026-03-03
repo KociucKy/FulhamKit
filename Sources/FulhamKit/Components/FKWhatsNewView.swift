@@ -108,8 +108,10 @@ public struct FKWhatsNewView: View {
 
             continueButton
                 .padding(.horizontal, FKSpacing.large)
-                .padding(.bottom, FKSpacing.extraLarge)
-				.padding(.top, FKSpacing.small)
+                .padding(.top, FKSpacing.small)
+                // safeAreaPadding ensures the button clears the home indicator
+                // in both portrait and landscape on all iPhone models.
+                .safeAreaPadding(.bottom)
                 .opacity(continueVisible ? 1 : 0)
                 .offset(y: continueVisible ? 0 : 24)
         }
