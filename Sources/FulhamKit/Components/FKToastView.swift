@@ -58,7 +58,7 @@ struct ToastView: View {
 
     // Maximum width keeps the toast pill-shaped in landscape where the
     // available width is much wider than in portrait.
-    private let maxWidth: CGFloat = 420
+    private static let maxWidth: CGFloat = 420
 
     var body: some View {
         HStack(spacing: FKSpacing.default) {
@@ -78,7 +78,7 @@ struct ToastView: View {
         .background(.regularMaterial)
         .clipShape(.capsule)
         .fkShadow(.medium)
-        .frame(maxWidth: maxWidth)
+        .frame(maxWidth: Self.maxWidth)
         // Combine into a single VoiceOver element with just the message text.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(toast.message)

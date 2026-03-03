@@ -253,13 +253,13 @@ public struct FKTextField: View {
 
     private var borderColor: Color {
         if isFocused && state == .default {
-            return Color(UIColor.systemBlue)
+            return FKColor.Status.info
         }
         return state.borderColor
     }
 
     private var iconColor: Color {
-        if isFocused { return Color(UIColor.systemBlue) }
+        if isFocused { return FKColor.Status.info }
         return FKColor.Label.tertiary
     }
 }

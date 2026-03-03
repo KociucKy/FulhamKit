@@ -31,9 +31,9 @@ import SwiftUI
 /// }
 /// ```
 public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: View>: View {
-    var items: [Item]
-    var height: CGFloat
-    @ViewBuilder var content: (Item) -> Content
+    let items: [Item]
+    let height: CGFloat
+    @ViewBuilder let content: (Item) -> Content
 
     @State private var selection: Item.ID?
 
@@ -95,7 +95,7 @@ public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: 
                     .accessibilityHidden(true)
             }
         }
-        .animation(.linear, value: selection.map { AnyHashable($0) })
+        .animation(.linear, value: selection)
         .accessibilityElement()
         .accessibilityLabel("Page")
         .accessibilityValue(pageAccessibilityValue)

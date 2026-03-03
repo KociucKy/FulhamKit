@@ -159,7 +159,7 @@ public struct FKWhatsNewView: View {
     @ViewBuilder
     private var featureList: some View {
         VStack(spacing: FKSpacing.large) {
-            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+            ForEach(Array(items.enumerated()), id: \.element.title) { index, item in
                 FeatureRow(item: item)
                     .opacity(visibleRows > index ? 1 : 0)
                     .offset(y: visibleRows > index ? 0 : 20)
@@ -181,29 +181,27 @@ public struct FKWhatsNewView: View {
 
     @MainActor
     private func runEntranceSequence() async {
-        let nanosPerSecond: UInt64 = 1_000_000_000
-
         // Header icon appears
-        try? await Task.sleep(nanoseconds: UInt64(0.15 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.15))
         guard !Task.isCancelled else { return }
         headerIconVisible = true
 
         // Header text slides up
-        try? await Task.sleep(nanoseconds: UInt64(0.2 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.2))
         guard !Task.isCancelled else { return }
         headerTextVisible = true
 
         // Header icon settles back to 1.0× (pulse)
-        try? await Task.sleep(nanoseconds: UInt64(0.15 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.15))
         guard !Task.isCancelled else { return }
         headerIconPulsed = true
 
         // Feature rows — staggered 0.1 s apart
-        try? await Task.sleep(nanoseconds: UInt64(0.1 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.1))
         for index in items.indices {
             guard !Task.isCancelled else { return }
             visibleRows = index + 1
-            try? await Task.sleep(nanoseconds: UInt64(0.1 * Double(nanosPerSecond)))
+            try? await Task.sleep(for: .seconds(0.1))
         }
 
         // Continue button
