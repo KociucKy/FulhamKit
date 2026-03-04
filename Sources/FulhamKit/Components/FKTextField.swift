@@ -94,6 +94,8 @@ public struct FKTextField: View {
     @State private var isRevealed: Bool = false
     @Namespace private var accessibilityNamespace
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     // MARK: Init
 
     /// Creates a styled text field.
@@ -183,6 +185,15 @@ public struct FKTextField: View {
         )
         .animation(FKAnimation.interactive, value: state)
         .animation(FKAnimation.interactive, value: isFocused)
+        .onChange(of: state) {
+            guard hapticsEnabled else { return }
+            switch state {
+            case .error:   FKHaptics.notification(.error)
+            case .warning: FKHaptics.notification(.warning)
+            case .success: FKHaptics.notification(.success)
+            case .default: break
+            }
+        }
     }
 
     // MARK: - Input field variants
@@ -200,6 +211,7 @@ public struct FKTextField: View {
 
     private var revealButton: some View {
         Button {
+            if hapticsEnabled { FKHaptics.selection() }
             isRevealed.toggle()
         } label: {
             Image(systemName: isRevealed ? "eye.slash" : "eye")
@@ -213,6 +225,7 @@ public struct FKTextField: View {
 
     private var clearButton: some View {
         Button {
+            if hapticsEnabled { FKHaptics.impact(.light) }
             text = ""
         } label: {
             Image(systemName: "xmark.circle.fill")

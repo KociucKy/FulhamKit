@@ -37,6 +37,8 @@ public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: 
 
     @State private var selection: Item.ID?
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     /// Creates a carousel.
     ///
     /// - Parameters:
@@ -78,6 +80,11 @@ public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: 
             .scrollPosition(id: $selection)
             .onAppear(perform: updateSelectionIfNeeded)
             .onChange(of: items.count, updateSelectionIfNeeded)
+            .onChange(of: selection) { oldValue, _ in
+                // Only fire haptic on user-driven page changes, not on initial population.
+                guard oldValue != nil, hapticsEnabled else { return }
+                FKHaptics.selection()
+            }
 
             paginationControl
         }
@@ -121,6 +128,7 @@ public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: 
               let currentIndex = items.firstIndex(where: { $0.id == selection }) else { return }
         let nextIndex = currentIndex + delta
         guard items.indices.contains(nextIndex) else { return }
+        if hapticsEnabled { FKHaptics.selection() }
         self.selection = items[nextIndex].id
     }
 

@@ -93,6 +93,8 @@ struct ToastModifier: ViewModifier {
     @State private var isVisible = false
     @State private var dismissTask: Task<Void, Never>?
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     func body(content: Content) -> some View {
         content
             // safeAreaInset places the toast above the content's top safe area,
@@ -119,6 +121,15 @@ struct ToastModifier: ViewModifier {
                 withAnimation(FKAnimation.spring) { isVisible = true }
                 // Announce the toast message for VoiceOver users.
                 AccessibilityNotification.Announcement(newToast.message).post()
+                // Haptic feedback matches the semantic weight of the toast style.
+                if hapticsEnabled {
+                    switch newToast.style {
+                    case .success: FKHaptics.notification(.success)
+                    case .error:   FKHaptics.notification(.error)
+                    case .warning: FKHaptics.notification(.warning)
+                    case .info:    FKHaptics.impact(.light)
+                    }
+                }
                 dismissTask = Task {
                     try? await Task.sleep(for: .seconds(newToast.duration))
                     guard !Task.isCancelled else { return }

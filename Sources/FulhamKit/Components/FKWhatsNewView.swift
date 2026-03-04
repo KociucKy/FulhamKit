@@ -68,6 +68,8 @@ public struct FKWhatsNewView: View {
     /// Drives the one-shot "pulse" on the header icon after it appears.
     @State private var headerIconPulsed = false
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     // MARK: Init
 
     /// Creates a What's New view.
@@ -172,9 +174,12 @@ public struct FKWhatsNewView: View {
 
     @ViewBuilder
     private var continueButton: some View {
-        Button("Continue", action: onContinue)
-            .callToActionButton()
-            .animation(FKAnimation.smooth, value: continueVisible)
+        Button("Continue") {
+            if hapticsEnabled { FKHaptics.impact(.medium) }
+            onContinue()
+        }
+        .callToActionButton()
+        .animation(FKAnimation.smooth, value: continueVisible)
     }
 
     // MARK: Entrance sequence

@@ -18,6 +18,8 @@ public struct FKSectionHeaderView: View {
     let title: String
     let action: (() -> Void)?
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     /// Creates a section header.
     ///
     /// - Parameters:
@@ -31,7 +33,10 @@ public struct FKSectionHeaderView: View {
 
     public var body: some View {
         if let action {
-            Button(action: action) { label }
+            Button(action: {
+                if hapticsEnabled { FKHaptics.selection() }
+                action()
+            }) { label }
                 .buttonStyle(.fkFade)
                 .accessibilityHint("Show all")
         } else {
