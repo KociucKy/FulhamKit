@@ -4,17 +4,26 @@ import SwiftUI
 
 /// Scales the button down to 95% on press with a smooth spring animation.
 ///
+/// Produces a light impact haptic on press. Haptics can be suppressed by
+/// applying ``SwiftUI/View/hapticFeedback(enabled:)`` on a parent view.
+///
 /// ```swift
 /// Button("Start") { startRoutine() }
 ///     .buttonStyle(.fkPressable)
 /// ```
 public struct FKPressableButtonStyle: ButtonStyle {
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
             .animation(FKAnimation.interactive, value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                guard isPressed, hapticsEnabled else { return }
+                FKHaptics.impact(.light)
+            }
     }
 }
 

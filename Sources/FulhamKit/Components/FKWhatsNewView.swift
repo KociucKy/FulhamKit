@@ -68,6 +68,8 @@ public struct FKWhatsNewView: View {
     /// Drives the one-shot "pulse" on the header icon after it appears.
     @State private var headerIconPulsed = false
 
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
+
     // MARK: Init
 
     /// Creates a What's New view.
@@ -108,8 +110,10 @@ public struct FKWhatsNewView: View {
 
             continueButton
                 .padding(.horizontal, FKSpacing.large)
-                .padding(.bottom, FKSpacing.extraLarge)
-				.padding(.top, FKSpacing.small)
+                .padding(.top, FKSpacing.small)
+                // safeAreaPadding ensures the button clears the home indicator
+                // in both portrait and landscape on all iPhone models.
+                .safeAreaPadding(.bottom)
                 .opacity(continueVisible ? 1 : 0)
                 .offset(y: continueVisible ? 0 : 24)
         }
@@ -139,6 +143,7 @@ public struct FKWhatsNewView: View {
                 Text(headline)
                     .font(FKTypography.statValue)
                     .foregroundStyle(FKColor.Label.primary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(version)
                     .font(FKTypography.secondaryLabel)
@@ -156,7 +161,7 @@ public struct FKWhatsNewView: View {
     @ViewBuilder
     private var featureList: some View {
         VStack(spacing: FKSpacing.large) {
-            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+            ForEach(Array(items.enumerated()), id: \.element.title) { index, item in
                 FeatureRow(item: item)
                     .opacity(visibleRows > index ? 1 : 0)
                     .offset(y: visibleRows > index ? 0 : 20)
@@ -169,38 +174,39 @@ public struct FKWhatsNewView: View {
 
     @ViewBuilder
     private var continueButton: some View {
-        Button("Continue", action: onContinue)
-            .callToActionButton()
-            .animation(FKAnimation.smooth, value: continueVisible)
+        Button("Continue") {
+            if hapticsEnabled { FKHaptics.impact(.medium) }
+            onContinue()
+        }
+        .callToActionButton()
+        .animation(FKAnimation.smooth, value: continueVisible)
     }
 
     // MARK: Entrance sequence
 
     @MainActor
     private func runEntranceSequence() async {
-        let nanosPerSecond: UInt64 = 1_000_000_000
-
         // Header icon appears
-        try? await Task.sleep(nanoseconds: UInt64(0.15 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.15))
         guard !Task.isCancelled else { return }
         headerIconVisible = true
 
         // Header text slides up
-        try? await Task.sleep(nanoseconds: UInt64(0.2 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.2))
         guard !Task.isCancelled else { return }
         headerTextVisible = true
 
         // Header icon settles back to 1.0× (pulse)
-        try? await Task.sleep(nanoseconds: UInt64(0.15 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.15))
         guard !Task.isCancelled else { return }
         headerIconPulsed = true
 
         // Feature rows — staggered 0.1 s apart
-        try? await Task.sleep(nanoseconds: UInt64(0.1 * Double(nanosPerSecond)))
+        try? await Task.sleep(for: .seconds(0.1))
         for index in items.indices {
             guard !Task.isCancelled else { return }
             visibleRows = index + 1
-            try? await Task.sleep(nanoseconds: UInt64(0.1 * Double(nanosPerSecond)))
+            try? await Task.sleep(for: .seconds(0.1))
         }
 
         // Continue button
@@ -273,6 +279,9 @@ private struct FeatureRow: View {
             textStack
             Spacer(minLength: 0)
         }
+        // Present the entire row as a single VoiceOver element.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(item.title). \(item.description)")
     }
 
     @ViewBuilder

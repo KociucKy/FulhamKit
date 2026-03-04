@@ -415,6 +415,93 @@ Color(hex: "3A86FF")
 Color(hex: "3A86FFCC") // with alpha
 ```
 
+### `.onFirstAppear(perform:)` / `.onFirstTask(perform:)`
+
+Fires a closure exactly once — on the first appearance only. Subsequent appearances (after navigating away and back) are ignored.
+
+```swift
+// Synchronous
+MyView()
+    .onFirstAppear {
+        viewModel.loadInitialData()
+    }
+
+// Async — task is cancelled automatically on disappear
+MyView()
+    .onFirstTask {
+        await viewModel.fetchRemoteData()
+    }
+```
+
+### `.applyIf(_:transform:)`
+
+Conditionally applies a view transform without `if`/`AnyView` at the call site. When the condition is `false`, the view is returned unchanged.
+
+```swift
+MyCard()
+    .applyIf(isSelected) { card in
+        card.fkBorder(cornerRadius: FKRadius.medium, lineWidth: FKBorder.medium)
+    }
+```
+
+### `.tappableBackground()`
+
+Makes the entire frame hittable, including empty space. Required when `.onTapGesture` on a `VStack`/`HStack` fails to fire in the gaps between subviews.
+
+```swift
+VStack { Image(systemName: "figure.soccer"); Text("Kick-off") }
+    .tappableBackground()
+    .onTapGesture { selectItem() }
+```
+
+### `.imageScrimBackground(scrimOpacity:)`
+
+Overlays a vertical gradient (transparent → black at the given opacity, default `0.4`) to improve legibility when text sits over an image background.
+
+```swift
+Image("match-hero")
+    .overlay(alignment: .bottom) {
+        VStack { /* ... */ }
+            .imageScrimBackground()
+            // .imageScrimBackground(scrimOpacity: 0.6)
+    }
+```
+
+### `.badgeStyle(backgroundColor:)`
+
+Wraps content in a pill-shaped capsule badge using `FKSpacing` tokens for padding.
+
+```swift
+Text("Live")
+    .font(FKTypography.footnoteEmphasis)
+    .foregroundStyle(.white)
+    .badgeStyle(backgroundColor: FKColor.Status.error)
+```
+
+### `.onNotificationReceived(_:action:)`
+
+Subscribes to a `NotificationCenter` notification for the lifetime of the view.
+
+```swift
+MyView()
+    .onNotificationReceived(.NSManagedObjectContextDidSave) { _ in
+        viewModel.refresh()
+    }
+```
+
+### `Binding(ifNotNil:)`
+
+Creates a `Binding<Bool>` from a `Binding<T?>`. Reads `true` when the optional is non-nil; writing `false` sets it back to `nil`. The standard pattern for sheet/alert presentation driven by optional state.
+
+```swift
+@State private var selectedPlayer: Player?
+
+.sheet(isPresented: Binding(ifNotNil: $selectedPlayer)) {
+    if let player = selectedPlayer {
+        PlayerDetailView(player: player)
+    }
+}
+
 ---
 
 ## CI: Design System Lint

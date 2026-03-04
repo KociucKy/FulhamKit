@@ -35,6 +35,10 @@ public struct FKLoadingIndicator: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Provide a single, descriptive VoiceOver label for the whole indicator.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label ?? "Loading")
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -80,8 +84,14 @@ public struct SkeletonModifier: ViewModifier {
                     }
                     .clipped()
                     .allowsHitTesting(false)
+                    // The shimmer is a decorative animation; hide it from VoiceOver.
+                    .accessibilityHidden(true)
                 }
             }
+            // While loading, replace the redacted placeholder text with a
+            // single meaningful label so VoiceOver users aren't read gibberish.
+            .accessibilityLabel(isLoading ? "Loading" : "")
+            .accessibilityAddTraits(isLoading ? .updatesFrequently : [])
             .onAppear {
                 guard isLoading else { return }
                 withAnimation(.linear(duration: 1.2).repeatForever(autoreverses: false)) {

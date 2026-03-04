@@ -4,22 +4,40 @@ import SwiftUI
 ///
 /// Items snap one-at-a-time and apply a scale transition (0.9×) to
 /// off-screen neighbours for depth. A row of dots below the scroll view
-/// reflects the current page.
+/// reflects the current page. VoiceOver users can swipe up/down on the
+/// pagination control to move between pages.
 ///
 /// ```swift
-/// CarouselView(items: routines, height: 120) { routine in
+/// FKCarouselView(items: routines, height: 120) { routine in
 ///     RoutineCardView(routine: routine)
 /// }
 /// ```
 ///
-/// - Note: `Item` must conform to `Hashable`. Each item's hash value is
+/// - Note: `Item` must conform to `Identifiable & Hashable`. The `id` is
 ///   used as a stable scroll identity.
-public struct FKCarouselView<Item: Hashable & Sendable, Content: View>: View {
-    var items: [Item]
-    var height: CGFloat
-    @ViewBuilder var content: (Item) -> Content
+///
+/// ## Orientation
+///
+/// The `height` parameter is fixed and has no built-in orientation awareness.
+/// In landscape on iPhone the viewport is significantly shorter (~370 pt), so
+/// a large `height` value will consume most of the available vertical space.
+/// Consider passing a smaller value when the vertical size class is compact:
+///
+/// ```swift
+/// @Environment(\.verticalSizeClass) private var verticalSizeClass
+///
+/// FKCarouselView(items: items, height: verticalSizeClass == .compact ? 120 : 220) { item in
+///     ItemView(item: item)
+/// }
+/// ```
+public struct FKCarouselView<Item: Identifiable & Hashable & Sendable, Content: View>: View {
+    let items: [Item]
+    let height: CGFloat
+    @ViewBuilder let content: (Item) -> Content
 
-    @State private var selection: Item?
+    @State private var selection: Item.ID?
+
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
 
     /// Creates a carousel.
     ///
@@ -41,9 +59,9 @@ public struct FKCarouselView<Item: Hashable & Sendable, Content: View>: View {
         VStack(spacing: FKSpacing.small) {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
-                    ForEach(items, id: \.hashValue) { item in
+                    ForEach(items) { item in
                         content(item)
-                            .id(item)
+                            .id(item.id)
                             .scrollTransition(
                                 .interactive.threshold(.visible(0.95)),
                                 transition: { content, phase in
@@ -51,6 +69,7 @@ public struct FKCarouselView<Item: Hashable & Sendable, Content: View>: View {
                                 }
                             )
                             .containerRelativeFrame(.horizontal, alignment: .center)
+                            .accessibilityElement(children: .combine)
                     }
                 }
             }
@@ -61,21 +80,60 @@ public struct FKCarouselView<Item: Hashable & Sendable, Content: View>: View {
             .scrollPosition(id: $selection)
             .onAppear(perform: updateSelectionIfNeeded)
             .onChange(of: items.count, updateSelectionIfNeeded)
-
-            HStack(spacing: FKSpacing.small) {
-                ForEach(items, id: \.hashValue) { item in
-                    Circle()
-                        .fill(item == selection ? Color.accentColor : Color.secondary.opacity(0.5))
-                        .frame(width: FKSpacing.small, height: FKSpacing.small)
-                }
+            .onChange(of: selection) { oldValue, _ in
+                // Only fire haptic on user-driven page changes, not on initial population.
+                guard oldValue != nil, hapticsEnabled else { return }
+                FKHaptics.selection()
             }
-            .animation(.linear, value: selection)
+
+            paginationControl
         }
     }
 
-    private func updateSelectionIfNeeded() {
-        if selection == nil || !items.contains(where: { $0 == selection }) {
-            selection = items.first
+    // MARK: - Pagination control
+
+    @ViewBuilder
+    private var paginationControl: some View {
+        HStack(spacing: FKSpacing.small) {
+            ForEach(items) { item in
+                Circle()
+                    .fill(item.id == selection ? Color.accentColor : Color.secondary.opacity(0.5))
+                    .frame(width: FKSpacing.small, height: FKSpacing.small)
+                    .accessibilityHidden(true)
+            }
         }
+        .animation(.linear, value: selection)
+        .accessibilityElement()
+        .accessibilityLabel("Page")
+        .accessibilityValue(pageAccessibilityValue)
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: advancePage(by: 1)
+            case .decrement: advancePage(by: -1)
+            @unknown default: break
+            }
+        }
+    }
+
+    private var pageAccessibilityValue: String {
+        guard let selection,
+              let index = items.firstIndex(where: { $0.id == selection }) else {
+            return "1 of \(items.count)"
+        }
+        return "\(index + 1) of \(items.count)"
+    }
+
+    private func advancePage(by delta: Int) {
+        guard let selection,
+              let currentIndex = items.firstIndex(where: { $0.id == selection }) else { return }
+        let nextIndex = currentIndex + delta
+        guard items.indices.contains(nextIndex) else { return }
+        if hapticsEnabled { FKHaptics.selection() }
+        self.selection = items[nextIndex].id
+    }
+
+    private func updateSelectionIfNeeded() {
+        guard selection == nil || !items.contains(where: { $0.id == selection }) else { return }
+        selection = items.first?.id
     }
 }

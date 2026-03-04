@@ -92,6 +92,9 @@ public struct FKTextField: View {
 
     @FocusState private var isFocused: Bool
     @State private var isRevealed: Bool = false
+    @Namespace private var accessibilityNamespace
+
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
 
     // MARK: Init
 
@@ -132,9 +135,11 @@ public struct FKTextField: View {
                 Text(label)
                     .font(FKTypography.footnoteEmphasis)
                     .foregroundStyle(FKColor.Label.secondary)
+                    .accessibilityLabeledPair(role: .label, id: "field", in: accessibilityNamespace)
             }
 
             fieldBody
+                .accessibilityLabeledPair(role: .content, id: "field", in: accessibilityNamespace)
 
             if let message = state.feedbackMessage {
                 feedbackLabel(message)
@@ -152,6 +157,7 @@ public struct FKTextField: View {
                     .foregroundStyle(iconColor)
                     .font(FKTypography.body)
                     .frame(width: 20)
+                    .accessibilityHidden(true)
             }
 
             inputField
@@ -179,6 +185,15 @@ public struct FKTextField: View {
         )
         .animation(FKAnimation.interactive, value: state)
         .animation(FKAnimation.interactive, value: isFocused)
+        .onChange(of: state) {
+            guard hapticsEnabled else { return }
+            switch state {
+            case .error:   FKHaptics.notification(.error)
+            case .warning: FKHaptics.notification(.warning)
+            case .success: FKHaptics.notification(.success)
+            case .default: break
+            }
+        }
     }
 
     // MARK: - Input field variants
@@ -196,6 +211,7 @@ public struct FKTextField: View {
 
     private var revealButton: some View {
         Button {
+            if hapticsEnabled { FKHaptics.selection() }
             isRevealed.toggle()
         } label: {
             Image(systemName: isRevealed ? "eye.slash" : "eye")
@@ -204,10 +220,12 @@ public struct FKTextField: View {
                 .frame(width: 20)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isRevealed ? "Hide password" : "Show password")
     }
 
     private var clearButton: some View {
         Button {
+            if hapticsEnabled { FKHaptics.impact(.light) }
             text = ""
         } label: {
             Image(systemName: "xmark.circle.fill")
@@ -216,6 +234,7 @@ public struct FKTextField: View {
                 .frame(width: 20)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Clear text")
     }
 
     private var successIcon: some View {
@@ -223,6 +242,7 @@ public struct FKTextField: View {
             .foregroundStyle(FKColor.Status.success)
             .font(FKTypography.body)
             .frame(width: 20)
+            .accessibilityHidden(true)
     }
 
     // MARK: - Feedback label
@@ -232,6 +252,7 @@ public struct FKTextField: View {
             if let icon = state.feedbackIcon {
                 Image(systemName: icon)
                     .font(.caption2)
+                    .accessibilityHidden(true)
             }
             Text(message)
                 .font(FKTypography.caption)
@@ -245,13 +266,13 @@ public struct FKTextField: View {
 
     private var borderColor: Color {
         if isFocused && state == .default {
-            return Color(UIColor.systemBlue)
+            return FKColor.Status.info
         }
         return state.borderColor
     }
 
     private var iconColor: Color {
-        if isFocused { return Color(UIColor.systemBlue) }
+        if isFocused { return FKColor.Status.info }
         return FKColor.Label.tertiary
     }
 }

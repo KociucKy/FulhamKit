@@ -22,6 +22,7 @@ import SwiftUI
 public struct FKBadgeView: View {
     private let label: String
     private let color: Color
+    private let accessibilityLabel: String?
 
     // MARK: - Init overloads
 
@@ -30,9 +31,13 @@ public struct FKBadgeView: View {
     /// - Parameters:
     ///   - label: The text to display.
     ///   - color: Background color. Defaults to `.accentColor`.
-    public init(label: String, color: Color = .accentColor) {
+    ///   - accessibilityLabel: An optional VoiceOver label. When `nil` the
+    ///     badge text is used as-is. Provide context when the badge appears
+    ///     alongside another element (e.g. `"3 unread messages"`).
+    public init(label: String, color: Color = .accentColor, accessibilityLabel: String? = nil) {
         self.label = label
         self.color = color
+        self.accessibilityLabel = accessibilityLabel
     }
 
     /// Creates a numeric count badge.
@@ -41,9 +46,13 @@ public struct FKBadgeView: View {
     ///   - count: The value to display.
     ///   - max: Values above this are shown as `"{max}+"`. Defaults to `99`.
     ///   - color: Background color. Defaults to `.accentColor`.
-    public init(count: Int, max: Int = 99, color: Color = .accentColor) {
+    ///   - accessibilityLabel: An optional VoiceOver label. When `nil` the
+    ///     formatted count string is used. Provide context when the badge
+    ///     appears alongside another element (e.g. `"3 unread messages"`).
+    public init(count: Int, max: Int = 99, color: Color = .accentColor, accessibilityLabel: String? = nil) {
         self.label = count > max ? "\(max)+" : "\(count)"
         self.color = color
+        self.accessibilityLabel = accessibilityLabel
     }
 
     public var body: some View {
@@ -54,6 +63,7 @@ public struct FKBadgeView: View {
             .padding(.vertical, FKSpacing.extraSmall)
             .background(color)
             .clipShape(.capsule)
+            .accessibilityLabel(accessibilityLabel ?? label)
     }
 }
 
@@ -66,12 +76,24 @@ public extension View {
     ///
     /// ```swift
     /// Image(systemName: "envelope")
-    ///     .badged(count: unreadCount)
+    ///     .badged(count: unreadCount, accessibilityLabel: "\(unreadCount) unread messages")
     /// ```
-    func badged(count: Int, max: Int = 99, color: Color = .accentColor) -> some View {
+    ///
+    /// - Parameters:
+    ///   - count: The number to display. The badge is hidden when `count` is zero.
+    ///   - max: Values above this are shown as `"{max}+"`. Defaults to `99`.
+    ///   - color: Badge background color. Defaults to `.accentColor`.
+    ///   - accessibilityLabel: An optional VoiceOver label for the badge. When
+    ///     `nil`, the formatted count string is used.
+    func badged(
+        count: Int,
+        max: Int = 99,
+        color: Color = .accentColor,
+        accessibilityLabel: String? = nil
+    ) -> some View {
         self.overlay(alignment: .topTrailing) {
             if count > 0 {
-                FKBadgeView(count: count, max: max, color: color)
+                FKBadgeView(count: count, max: max, color: color, accessibilityLabel: accessibilityLabel)
                     .offset(x: FKSpacing.medium, y: -FKSpacing.medium)
             }
         }

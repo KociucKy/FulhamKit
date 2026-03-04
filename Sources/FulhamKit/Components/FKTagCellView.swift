@@ -14,6 +14,8 @@ public struct FKTagCellView: View {
     let icon: String
     let hexColor: String
 
+    @ScaledMetric private var tileSize: CGFloat = 50
+
     /// Creates a tag cell.
     ///
     /// - Parameters:
@@ -41,12 +43,15 @@ public struct FKTagCellView: View {
                         .imageScale(.large)
                         .font(FKTypography.ctaLabel)
                 }
-                .frame(width: 50, height: 50)
+                .frame(width: tileSize, height: tileSize)
 
             Text(name)
                 .font(FKTypography.secondaryLabel)
                 .fontWeight(.semibold)
         }
+        // Combine the badge + label into a single VoiceOver element.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(name)
     }
 }
 

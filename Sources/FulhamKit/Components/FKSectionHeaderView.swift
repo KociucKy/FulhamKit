@@ -15,8 +15,10 @@ import SwiftUI
 /// }
 /// ```
 public struct FKSectionHeaderView: View {
-    var title: String
-    var action: (() -> Void)?
+    let title: String
+    let action: (() -> Void)?
+
+    @Environment(\.fkHapticsEnabled) private var hapticsEnabled
 
     /// Creates a section header.
     ///
@@ -30,7 +32,24 @@ public struct FKSectionHeaderView: View {
     }
 
     public var body: some View {
-        let label = HStack {
+        if let action {
+            Button(action: {
+                if hapticsEnabled { FKHaptics.selection() }
+                action()
+            }) { label }
+                .buttonStyle(.fkFade)
+                .accessibilityHint("Show all")
+        } else {
+            label
+                .accessibilityAddTraits(.isHeader)
+        }
+    }
+
+    // MARK: Helpers
+
+    @ViewBuilder
+    private var label: some View {
+        HStack {
             Text(title)
                 .foregroundStyle(.primary)
                 .font(FKTypography.sectionHeader)
@@ -39,16 +58,10 @@ public struct FKSectionHeaderView: View {
                 Image(systemName: "chevron.right")
                     .foregroundStyle(.secondary)
                     .font(FKTypography.sectionHeaderEmphasis)
+                    .accessibilityHidden(true)
             }
 
             Spacer()
-        }
-
-        if let action {
-            Button(action: action) { label }
-                .buttonStyle(.fkFade)
-        } else {
-            label
         }
     }
 }
