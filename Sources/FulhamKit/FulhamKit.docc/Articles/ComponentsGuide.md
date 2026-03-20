@@ -178,6 +178,33 @@ SectionHeaderView(title: "Recent Routines") {
 
 ---
 
+## FKFlowLayout
+
+A `Layout`-conforming container that arranges children left-to-right, wrapping to a new row when there is not enough space. Use it anywhere you need a dynamic tag cloud, chip group, or keyword list.
+
+```swift
+FKFlowLayout {
+    ForEach(tags, id: \.self) { tag in
+        FKBadgeView(label: tag)
+    }
+}
+
+// Custom spacing
+FKFlowLayout(horizontalSpacing: FKSpacing.large, verticalSpacing: FKSpacing.medium) {
+    ForEach(filters, id: \.self) { filter in
+        FilterChip(label: filter)
+    }
+}
+```
+
+Both `horizontalSpacing` and `verticalSpacing` accept any `CGFloat` and default to ``FKSpacing/default``.
+
+### Topics
+
+- ``FKFlowLayout``
+
+---
+
 ## FKWhatsNewView
 
 A "What's New" sheet for presenting new features after an app update. The header icon springs in, the title fades up, and each feature row slides in sequentially — all driven by a structured async sequence that cancels automatically if the sheet is dismissed early.
